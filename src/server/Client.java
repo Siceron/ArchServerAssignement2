@@ -1,8 +1,6 @@
 package server;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.ConvolveOp;
-import java.awt.image.Kernel;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -19,6 +17,14 @@ public class Client {
 		// Client
 	}
 
+	private static int[] stringToIntArray(String stringArray[]) {
+		int result[] = new int[stringArray.length];
+		for(int i = 0 ; i<stringArray.length ; i++){
+			result[i] = Integer.parseInt(stringArray[i]);
+		}
+		return result;
+	}
+	
 	private static int[][] imageTo2DArray(BufferedImage image) {
 
 		int w = image.getWidth();
@@ -33,11 +39,11 @@ public class Client {
 	}
 
 	private static void writeImage(int arr[][]){
-		int xLenght = arr.length;
+		int xLength = arr.length;
 		int yLength = arr[0].length;
-		BufferedImage b = new BufferedImage(xLenght, yLength, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage b = new BufferedImage(xLength, yLength, BufferedImage.TYPE_INT_ARGB);
 
-		for(int x = 0; x < xLenght; x++) {
+		for(int x = 0; x < xLength; x++) {
 			for(int y = 0; y < yLength; y++) {
 				b.setRGB(x, y, arr[x][y]);
 			}
@@ -49,37 +55,14 @@ public class Client {
 		}
 	}
 
-	static final float[] blur = {
-		0.111f, 0.111f, 0.111f, 
-		0.111f, 0.111f, 0.111f, 
-		0.111f, 0.111f, 0.111f, 
-	};
-
-	static final float[] sharpen = {
-		0.0f, -1.0f, 0.0f,
-		-1.0f, 5.0f, -1.0f,
-		0.0f, -1.0f, 0.0f
-	};
-
-	static final float[] edges = {
-		-1.0f, -1.0f, -1.0f,
-		-1.0f, 8.0f, -1.0f,
-		-1.0f, -1.0f, -1.0f
-	};
-
 	public static void main(String [] args)
 	{
 		String serverName = args[0];
 		int port = Integer.parseInt(args[1]);
 		try
 		{
-			BufferedImage hugeImage = ImageIO.read(Client.class.getResource("image.png"));
-
-			Kernel kernel = new Kernel(3, 3, edges);
-			ConvolveOp op = new ConvolveOp(kernel);
-			BufferedImage dstImage = op.filter(hugeImage, null);
-			int[][] result = imageTo2DArray(dstImage);
-			writeImage(result);
+			BufferedImage image = ImageIO.read(Client.class.getResource("image.png"));
+			int[][] result = imageTo2DArray(image);
 
 			System.out.println("Connecting to " + serverName +
 					" on port " + port);
@@ -88,12 +71,35 @@ public class Client {
 					+ client.getRemoteSocketAddress());
 			OutputStream outToServer = client.getOutputStream();
 			DataOutputStream out = new DataOutputStream(outToServer);
-			out.writeUTF("Hello from "
-					+ client.getLocalSocketAddress());
+			
+			// SENDING IMAGE TO SERVER
+			String messageToServer = "";
+			out.writeUTF(""+result.length);
+			out.writeUTF(""+result[0].length);
+			for(int i = 0 ; i < result.length ; i++){
+				for(int j = 0 ; j < result[0].length ; j++){
+					if(j < result[0].length-1)
+						messageToServer += result[i][j]+",";
+					else
+						messageToServer += result[i][j]+"";
+				}
+				out.writeUTF(messageToServer);
+				messageToServer = "";
+			}
+			//out.writeUTF("Hello from "
+			//		+ client.getLocalSocketAddress());
+			
+			// RECEIVING IMAGE FROM SERVER
 			InputStream inFromServer = client.getInputStream();
 			DataInputStream in =
 					new DataInputStream(inFromServer);
-			System.out.println("Server says " + in.readUTF());
+			int lengthX = Integer.parseInt(in.readUTF());
+			int lengthY = Integer.parseInt(in.readUTF());
+			int imageArray[][] = new int[lengthX][lengthY];
+			for(int i = 0 ; i<lengthX ; i++){
+				imageArray[i] = stringToIntArray(in.readUTF().split(","));
+			}
+			writeImage(imageArray);
 			client.close();
 		}catch(IOException e)
 		{
