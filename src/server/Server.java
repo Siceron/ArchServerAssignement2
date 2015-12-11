@@ -115,8 +115,7 @@ public class Server extends Thread {
 					out.writeUTF(messageToClient);
 					messageToClient = "";
 				}
-				//out.writeUTF("Thank you for connecting to "
-				//		+ server.getLocalSocketAddress() + "\nGoodbye!");
+				
 				server.close();
 			}catch(SocketTimeoutException s)
 			{

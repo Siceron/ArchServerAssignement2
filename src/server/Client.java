@@ -86,8 +86,6 @@ public class Client {
 				out.writeUTF(messageToServer);
 				messageToServer = "";
 			}
-			//out.writeUTF("Hello from "
-			//		+ client.getLocalSocketAddress());
 			
 			// RECEIVING IMAGE FROM SERVER
 			InputStream inFromServer = client.getInputStream();
@@ -99,7 +97,8 @@ public class Client {
 			for(int i = 0 ; i<lengthX ; i++){
 				imageArray[i] = stringToIntArray(in.readUTF().split(","));
 			}
-			writeImage(imageArray);
+			writeImage(imageArray); // WRITING IMAGE
+			
 			client.close();
 		}catch(IOException e)
 		{
