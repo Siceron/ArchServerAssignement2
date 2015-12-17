@@ -85,6 +85,7 @@ public class Server extends Thread {
 				// PARSING IMAGE
 				DataInputStream in =
 						new DataInputStream(server.getInputStream());
+				long startCalculationTime = System.currentTimeMillis();
 				int lengthX = Integer.parseInt(in.readUTF());
 				int lengthY = Integer.parseInt(in.readUTF());
 				int imageArray[][] = new int[lengthX][lengthY];
@@ -98,6 +99,8 @@ public class Server extends Thread {
 				ConvolveOp op = new ConvolveOp(kernel);
 				BufferedImage dstImage = op.filter(image, null);
 				int[][] result = imageTo2DArray(dstImage);
+				System.out.println("Calculation time : "+(System.currentTimeMillis()-
+						startCalculationTime)/1000.0+"s");
 
 				// SENDING RESULT
 				DataOutputStream out =
@@ -115,7 +118,7 @@ public class Server extends Thread {
 					out.writeUTF(messageToClient);
 					messageToClient = "";
 				}
-				
+
 				server.close();
 			}catch(SocketTimeoutException s)
 			{

@@ -57,15 +57,24 @@ public class Client {
 
 	public static void main(String [] args)
 	{
+		// VARS USED FOR MEASUREMENT
+		long startTime = System.currentTimeMillis();
+		long networkTime = 0;
+		long diskAccessTime = 0;
+		long totalTime = 0;
+		
 		String serverName = args[0];
 		int port = Integer.parseInt(args[1]);
 		try
 		{
-			BufferedImage image = ImageIO.read(Client.class.getResource("image.png"));
+			long startDiskAccessTime = System.currentTimeMillis();
+			BufferedImage image = ImageIO.read(Client.class.getResource("250.jpg"));
+			diskAccessTime += (System.currentTimeMillis() - startDiskAccessTime);
 			int[][] result = imageTo2DArray(image);
 
 			System.out.println("Connecting to " + serverName +
 					" on port " + port);
+			long startNetworkTime = System.currentTimeMillis();
 			Socket client = new Socket(serverName, port);
 			System.out.println("Just connected to " 
 					+ client.getRemoteSocketAddress());
@@ -88,18 +97,25 @@ public class Client {
 			}
 			
 			// RECEIVING IMAGE FROM SERVER
+			startNetworkTime = System.currentTimeMillis();
 			InputStream inFromServer = client.getInputStream();
 			DataInputStream in =
 					new DataInputStream(inFromServer);
+			networkTime += System.currentTimeMillis() - startNetworkTime;
 			int lengthX = Integer.parseInt(in.readUTF());
 			int lengthY = Integer.parseInt(in.readUTF());
 			int imageArray[][] = new int[lengthX][lengthY];
 			for(int i = 0 ; i<lengthX ; i++){
 				imageArray[i] = stringToIntArray(in.readUTF().split(","));
 			}
-			writeImage(imageArray); // WRITING IMAGE
-			
 			client.close();
+			networkTime += System.currentTimeMillis() - startNetworkTime;
+			startDiskAccessTime = System.currentTimeMillis();
+			writeImage(imageArray); // WRITING IMAGE
+			diskAccessTime += (System.currentTimeMillis() - startDiskAccessTime);
+			System.out.println("Network time : "+networkTime/1000.0+"s");
+			System.out.println("Disk access time : "+diskAccessTime/1000.0+"s");
+			System.out.println("Total time : "+(System.currentTimeMillis()-startTime)/1000.0+"s");
 		}catch(IOException e)
 		{
 			e.printStackTrace();
