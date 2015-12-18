@@ -90,7 +90,7 @@ public class Client extends Thread {
 		try
 		{
 			long startDiskAccessTime = System.currentTimeMillis();
-			String difficultyPath = difficulties[Utils.getRandomInteger(0, 5)];
+			String difficultyPath = difficulties[difficulty];
 			BufferedImage image = ImageIO.read(Client.class.getResource(difficultyPath));
 			diskAccessTime += (System.currentTimeMillis() - startDiskAccessTime);
 			int[][] result = imageTo2DArray(image);
