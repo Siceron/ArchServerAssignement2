@@ -8,17 +8,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 import javax.imageio.ImageIO;
 
-public class Client {
+public class Client extends Thread {
 
 	// ARRAY OF DIFFICULTIES
-	private static String difficulties[] = {"100.png", "250.jpg", "500.jpg", "1000.jpg",
-		"1500.jpg", "2000.jpg"};
+	private String difficulties[] = {"100.png", "250.jpg", "500.jpg", "1000.jpg",
+			"1500.jpg", "2000.jpg"};
 
-	public Client(){
-		// Client
+	private String serverName;
+	private int port;
+
+	public Client(String serverName, int port){
+		this.serverName = serverName;
+		this.port = port;
 	}
 
 	/**
@@ -26,7 +31,7 @@ public class Client {
 	 * @param stringArray
 	 * @return an int array representing the pixels of the image
 	 */
-	private static int[] stringToIntArray(String stringArray[]) {
+	private int[] stringToIntArray(String stringArray[]) {
 		int result[] = new int[stringArray.length];
 		for(int i = 0 ; i<stringArray.length ; i++){
 			result[i] = Integer.parseInt(stringArray[i]);
@@ -39,7 +44,7 @@ public class Client {
 	 * @param image
 	 * @return2d a 2d array of integers representing the pixels of the image
 	 */
-	private static int[][] imageTo2DArray(BufferedImage image) {
+	private int[][] imageTo2DArray(BufferedImage image) {
 
 		int w = image.getWidth();
 		int h = image.getHeight();
@@ -56,7 +61,7 @@ public class Client {
 	 * Write an image to the disk from a 2d array of pixels
 	 * @param arr := 2d array of pixels
 	 */
-	private static void writeImage(int arr[][]){
+	private void writeImage(int arr[][]){
 		int xLength = arr.length;
 		int yLength = arr[0].length;
 		BufferedImage b = new BufferedImage(xLength, yLength, BufferedImage.TYPE_INT_ARGB);
@@ -73,7 +78,7 @@ public class Client {
 		}
 	}
 
-	private static void measurement1(String serverName, int port){
+	private void measurement1(){
 		// VARS USED FOR MEASUREMENT
 		long startTime = System.currentTimeMillis();
 		long networkTime = 0;
@@ -136,10 +141,10 @@ public class Client {
 		}
 	}
 
-	private static void measurement2(String serverName, int port){
+	private void measurement2(){
 
 		int numberClients = 10; // Number of requests
-		
+
 		try
 		{
 			for(int k = 0 ; k<numberClients ; k++){
@@ -147,12 +152,13 @@ public class Client {
 				long startTime = System.currentTimeMillis();
 				long networkTime = 0;
 				long diskAccessTime = 0;
-				
+
 				long startDiskAccessTime = System.currentTimeMillis();
 				String difficulty = difficulties[Utils.getRandomInteger(0, 5)];
 				BufferedImage image = ImageIO.read(Client.class.getResource(difficulty));
 				diskAccessTime += (System.currentTimeMillis() - startDiskAccessTime);
 				int[][] result = imageTo2DArray(image);
+				System.out.println("SENDING "+result.length);
 
 				System.out.println("Connecting to " + serverName +
 						" on port " + port);
@@ -203,17 +209,23 @@ public class Client {
 					// Wait an exponentially distributed time
 				}
 			}
+			System.out.println("done");
 		}catch(IOException e)
 		{
 			e.printStackTrace();
 		}
 	}
 
+	public void run()
+	{
+		measurement2();
+	}
+
 	public static void main(String [] args)
 	{
 		String serverName = args[0];
 		int port = Integer.parseInt(args[1]);
-		//measurement1(serverName, port);
-		measurement2(serverName, port);
+		Thread t = new Client(serverName,port);
+		t.start();
 	}
 }
