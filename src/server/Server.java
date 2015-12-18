@@ -40,11 +40,15 @@ public class Server extends Thread {
 		//serverSocket.setSoTimeout(60000);
 	}
 
+	/**
+	 * Method used for the measurement 1
+	 */
 	private void measurement1(){
 		while(true)
 		{
 			try
 			{
+				// CONNECTING TO THE CLIENT
 				System.out.println("Listening on port " +
 						serverSocket.getLocalPort() + "...");
 				Socket server = serverSocket.accept();
@@ -101,11 +105,15 @@ public class Server extends Thread {
 		}
 	}
 	
+	/**
+	 * Method used for the measurement 3
+	 */
 	private void measurement3(){
 		while(true)
 		{
 			try
 			{
+				// CONNECTING TO THE CLIENT
 				System.out.println("Listening on port " +
 						serverSocket.getLocalPort() + "...");
 				Socket server = serverSocket.accept();
@@ -120,7 +128,7 @@ public class Server extends Thread {
 				int[][] result = new int[lengthX][lengthY];
 				String resourceName = ""+lengthX*lengthY;
 				System.out.println("Reading image : "+lengthX);
-				if(sizeBasedCache.isElement(resourceName)){
+				if(sizeBasedCache.isElement(resourceName)){ // IF ALREADY IN THE CACHE
 					long startCalculationTime = System.currentTimeMillis();
 					result = sizeBasedCache.getResource(resourceName).getImage().clone();
 					System.out.println("Calculation time : "+(System.currentTimeMillis()-
@@ -129,7 +137,7 @@ public class Server extends Thread {
 						in.readUTF();
 					}
 				}
-				else{
+				else{ // IF NOT IN THE CACHE
 					int imageArray[][] = new int[lengthX][lengthY];
 					for(int i = 0 ; i<lengthX ; i++){
 						imageArray[i] = Utils.stringToIntArray(in.readUTF().split(","));

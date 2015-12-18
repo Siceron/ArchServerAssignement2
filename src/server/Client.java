@@ -58,12 +58,14 @@ public class Client extends Thread {
 
 		try
 		{
+			// READING AN IMAGE LOCALLY
 			long startDiskAccessTime = System.currentTimeMillis();
 			String difficultyPath = difficulties[difficulty];
 			BufferedImage image = ImageIO.read(Client.class.getResource(difficultyPath));
 			diskAccessTime += (System.currentTimeMillis() - startDiskAccessTime);
 			int[][] result = Utils.imageTo2DArray(image);
 
+			// CONNECTING TO THE SERVER
 			System.out.println("Connecting to " + serverName +
 					" on port " + port);
 			long startNetworkTime = System.currentTimeMillis();
@@ -101,9 +103,12 @@ public class Client extends Thread {
 			}
 			client.close();
 			networkTime += System.currentTimeMillis() - startNetworkTime;
+			
 			startDiskAccessTime = System.currentTimeMillis();
 			writeImage(imageArray); // WRITING IMAGE
 			diskAccessTime += (System.currentTimeMillis() - startDiskAccessTime);
+			
+			// PRINT RESULTS
 			System.out.println("Network time (with calculation) : "+networkTime/1000.0+"s");
 			System.out.println("Disk access time : "+diskAccessTime/1000.0+"s");
 			System.out.println("Total time : "+(System.currentTimeMillis()-startTime)/1000.0+"s");
