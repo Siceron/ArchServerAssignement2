@@ -115,13 +115,13 @@ public class Server extends Thread {
 				// PARSING IMAGE
 				DataInputStream in =
 						new DataInputStream(server.getInputStream());
-				long startCalculationTime = System.currentTimeMillis();
 				int lengthX = Integer.parseInt(in.readUTF());
 				int lengthY = Integer.parseInt(in.readUTF());
 				int[][] result = new int[lengthX][lengthY];
 				String resourceName = ""+lengthX*lengthY;
 				System.out.println("Reading image : "+lengthX);
 				if(sizeBasedCache.isElement(resourceName)){
+					long startCalculationTime = System.currentTimeMillis();
 					result = sizeBasedCache.getResource(resourceName).getImage().clone();
 					System.out.println("Calculation time : "+(System.currentTimeMillis()-
 							startCalculationTime)/1000.0+"s");
@@ -136,6 +136,7 @@ public class Server extends Thread {
 					}
 
 					// CONVOLUTION
+					long startCalculationTime = System.currentTimeMillis();
 					BufferedImage image = Utils.arrayToImage(imageArray);
 					Kernel kernel = new Kernel(3, 3, sharpen);
 					ConvolveOp op = new ConvolveOp(kernel);

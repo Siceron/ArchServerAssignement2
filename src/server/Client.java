@@ -90,11 +90,9 @@ public class Client extends Thread {
 			}
 
 			// RECEIVING IMAGE FROM SERVER
-			startNetworkTime = System.currentTimeMillis();
 			InputStream inFromServer = client.getInputStream();
 			DataInputStream in =
 					new DataInputStream(inFromServer);
-			networkTime += System.currentTimeMillis() - startNetworkTime;
 			int lengthX = Integer.parseInt(in.readUTF());
 			int lengthY = Integer.parseInt(in.readUTF());
 			int imageArray[][] = new int[lengthX][lengthY];
@@ -106,7 +104,7 @@ public class Client extends Thread {
 			startDiskAccessTime = System.currentTimeMillis();
 			writeImage(imageArray); // WRITING IMAGE
 			diskAccessTime += (System.currentTimeMillis() - startDiskAccessTime);
-			System.out.println("Network time : "+networkTime/1000.0+"s");
+			System.out.println("Network time (with calculation) : "+networkTime/1000.0+"s");
 			System.out.println("Disk access time : "+diskAccessTime/1000.0+"s");
 			System.out.println("Total time : "+(System.currentTimeMillis()-startTime)/1000.0+"s");
 		}catch(IOException e)
@@ -119,7 +117,7 @@ public class Client extends Thread {
 	{
 		String serverName = args[0];
 		int port = Integer.parseInt(args[1]);
-		int numberOfClients = 10;
+		int numberOfClients = 1;
 		for(int i = 0 ; i<numberOfClients ; i++){
 			Thread t = new Client(serverName,port, Utils.getRandomInteger(0, 5));
 			t.start();

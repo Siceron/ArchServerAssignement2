@@ -50,7 +50,6 @@ public class MultiThreadedServer implements Runnable {
 			// PARSING IMAGE
 			DataInputStream in =
 					new DataInputStream(socket.getInputStream());
-			long startCalculationTime = System.currentTimeMillis();
 			int lengthX = Integer.parseInt(in.readUTF());
 			int lengthY = Integer.parseInt(in.readUTF());
 			int[][] result = new int[lengthX][lengthY];
@@ -58,6 +57,7 @@ public class MultiThreadedServer implements Runnable {
 			System.out.println("Reading image : "+lengthX);
 			if(sizeBasedCache.isElement(resourceName)){
 				System.out.println("ALREADY IN THE CACHE");
+				long startCalculationTime = System.currentTimeMillis();
 				result = sizeBasedCache.getResource(resourceName).getImage().clone();
 				System.out.println("Calculation time : "+(System.currentTimeMillis()-
 						startCalculationTime)/1000.0+"s");
@@ -72,6 +72,7 @@ public class MultiThreadedServer implements Runnable {
 				}
 
 				// CONVOLUTION
+				long startCalculationTime = System.currentTimeMillis();
 				BufferedImage image = Utils.arrayToImage(imageArray);
 				Kernel kernel = new Kernel(3, 3, sharpen);
 				ConvolveOp op = new ConvolveOp(kernel);
