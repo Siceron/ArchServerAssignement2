@@ -29,37 +29,6 @@ public class Client extends Thread {
 	}
 
 	/**
-	 * Parse the strings received for the server to an int array of pixels
-	 * @param stringArray
-	 * @return an int array representing the pixels of the image
-	 */
-	private int[] stringToIntArray(String stringArray[]) {
-		int result[] = new int[stringArray.length];
-		for(int i = 0 ; i<stringArray.length ; i++){
-			result[i] = Integer.parseInt(stringArray[i]);
-		}
-		return result;
-	}
-
-	/**
-	 * Get a 2d array of integers representing the pixels of the image
-	 * @param image
-	 * @return2d a 2d array of integers representing the pixels of the image
-	 */
-	private int[][] imageTo2DArray(BufferedImage image) {
-
-		int w = image.getWidth();
-		int h = image.getHeight();
-		int[][] pixels = new int[w][h];
-
-		for( int i = 0; i < w; i++ )
-			for( int j = 0; j < h; j++ )
-				pixels[i][j] = image.getRGB( i, j );
-
-		return pixels;
-	}
-
-	/**
 	 * Write an image to the disk from a 2d array of pixels
 	 * @param arr := 2d array of pixels
 	 */
@@ -93,7 +62,7 @@ public class Client extends Thread {
 			String difficultyPath = difficulties[difficulty];
 			BufferedImage image = ImageIO.read(Client.class.getResource(difficultyPath));
 			diskAccessTime += (System.currentTimeMillis() - startDiskAccessTime);
-			int[][] result = imageTo2DArray(image);
+			int[][] result = Utils.imageTo2DArray(image);
 
 			System.out.println("Connecting to " + serverName +
 					" on port " + port);
@@ -130,7 +99,7 @@ public class Client extends Thread {
 			int lengthY = Integer.parseInt(in.readUTF());
 			int imageArray[][] = new int[lengthX][lengthY];
 			for(int i = 0 ; i<lengthX ; i++){
-				imageArray[i] = stringToIntArray(in.readUTF().split(","));
+				imageArray[i] = Utils.stringToIntArray(in.readUTF().split(","));
 			}
 			client.close();
 			networkTime += System.currentTimeMillis() - startNetworkTime;

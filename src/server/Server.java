@@ -40,41 +40,6 @@ public class Server extends Thread {
 		//serverSocket.setSoTimeout(60000);
 	}
 
-	private int[] stringToIntArray(String stringArray[]) {
-		int result[] = new int[stringArray.length];
-		for(int i = 0 ; i<stringArray.length ; i++){
-			result[i] = Integer.parseInt(stringArray[i]);
-		}
-		return result;
-	}
-
-	private BufferedImage arrayToImage(int imageArray[][]){
-		int xLength = imageArray.length;
-		int yLength = imageArray[0].length;
-		BufferedImage b = new BufferedImage(xLength, yLength, BufferedImage.TYPE_INT_ARGB);
-
-		for(int x = 0; x < xLength; x++) {
-			for(int y = 0; y < yLength; y++) {
-				b.setRGB(x, y, imageArray[x][y]);
-			}
-		}
-
-		return b;
-	}
-
-	private int[][] imageTo2DArray(BufferedImage image) {
-
-		int w = image.getWidth();
-		int h = image.getHeight();
-		int[][] pixels = new int[w][h];
-
-		for( int i = 0; i < w; i++ )
-			for( int j = 0; j < h; j++ )
-				pixels[i][j] = image.getRGB( i, j );
-
-		return pixels;
-	}
-
 	private void measurement1(){
 		while(true)
 		{
@@ -94,15 +59,15 @@ public class Server extends Thread {
 				int lengthY = Integer.parseInt(in.readUTF());
 				int imageArray[][] = new int[lengthX][lengthY];
 				for(int i = 0 ; i<lengthX ; i++){
-					imageArray[i] = stringToIntArray(in.readUTF().split(","));
+					imageArray[i] = Utils.stringToIntArray(in.readUTF().split(","));
 				}
 
 				// CONVOLUTION
-				BufferedImage image = arrayToImage(imageArray);
+				BufferedImage image = Utils.arrayToImage(imageArray);
 				Kernel kernel = new Kernel(3, 3, sharpen);
 				ConvolveOp op = new ConvolveOp(kernel);
 				BufferedImage dstImage = op.filter(image, null);
-				int[][] result = imageTo2DArray(dstImage);
+				int[][] result = Utils.imageTo2DArray(dstImage);
 				System.out.println("Calculation time : "+(System.currentTimeMillis()-
 						startCalculationTime)/1000.0+"s");
 
@@ -167,15 +132,15 @@ public class Server extends Thread {
 				else{
 					int imageArray[][] = new int[lengthX][lengthY];
 					for(int i = 0 ; i<lengthX ; i++){
-						imageArray[i] = stringToIntArray(in.readUTF().split(","));
+						imageArray[i] = Utils.stringToIntArray(in.readUTF().split(","));
 					}
 
 					// CONVOLUTION
-					BufferedImage image = arrayToImage(imageArray);
+					BufferedImage image = Utils.arrayToImage(imageArray);
 					Kernel kernel = new Kernel(3, 3, sharpen);
 					ConvolveOp op = new ConvolveOp(kernel);
 					BufferedImage dstImage = op.filter(image, null);
-					result = imageTo2DArray(dstImage);
+					result = Utils.imageTo2DArray(dstImage);
 					sizeBasedCache.addElement(new Resource(resourceName, lengthX*lengthY, result.clone()));
 					System.out.println("Calculation time : "+(System.currentTimeMillis()-
 							startCalculationTime)/1000.0+"s");
