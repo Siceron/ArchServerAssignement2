@@ -158,11 +158,11 @@ public class Server extends Thread {
 				System.out.println("Reading image : "+lengthX);
 				if(sizeBasedCache.isElement(resourceName)){
 					result = sizeBasedCache.getResource(resourceName).getImage().clone();
+					System.out.println("Calculation time : "+(System.currentTimeMillis()-
+							startCalculationTime)/1000.0+"s");
 					for(int i = 0 ; i<lengthX ; i++){
 						in.readUTF();
 					}
-					System.out.println("Calculation time : "+(System.currentTimeMillis()-
-							startCalculationTime)/1000.0+"s");
 				}
 				else{
 					int imageArray[][] = new int[lengthX][lengthY];

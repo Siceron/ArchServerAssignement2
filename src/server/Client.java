@@ -20,10 +20,12 @@ public class Client extends Thread {
 
 	private String serverName;
 	private int port;
+	private int difficulty;
 
-	public Client(String serverName, int port){
+	public Client(String serverName, int port, int difficulty){
 		this.serverName = serverName;
 		this.port = port;
+		this.difficulty = difficulty;
 	}
 
 	/**
@@ -78,7 +80,8 @@ public class Client extends Thread {
 		}
 	}
 
-	private void measurement1(){
+	public void run()
+	{
 		// VARS USED FOR MEASUREMENT
 		long startTime = System.currentTimeMillis();
 		long networkTime = 0;
@@ -87,7 +90,8 @@ public class Client extends Thread {
 		try
 		{
 			long startDiskAccessTime = System.currentTimeMillis();
-			BufferedImage image = ImageIO.read(Client.class.getResource("500.jpg"));
+			String difficultyPath = difficulties[Utils.getRandomInteger(0, 5)];
+			BufferedImage image = ImageIO.read(Client.class.getResource(difficultyPath));
 			diskAccessTime += (System.currentTimeMillis() - startDiskAccessTime);
 			int[][] result = imageTo2DArray(image);
 
@@ -101,6 +105,7 @@ public class Client extends Thread {
 			DataOutputStream out = new DataOutputStream(outToServer);
 
 			// SENDING IMAGE TO SERVER
+			System.out.println("Sending image "+result.length);
 			String messageToServer = "";
 			out.writeUTF(""+result.length);
 			out.writeUTF(""+result[0].length);
@@ -141,91 +146,18 @@ public class Client extends Thread {
 		}
 	}
 
-	private void measurement2(){
-
-		int numberClients = 10; // Number of requests
-
-		try
-		{
-			for(int k = 0 ; k<numberClients ; k++){
-				// VARS USED FOR MEASUREMENT
-				long startTime = System.currentTimeMillis();
-				long networkTime = 0;
-				long diskAccessTime = 0;
-
-				long startDiskAccessTime = System.currentTimeMillis();
-				String difficulty = difficulties[Utils.getRandomInteger(0, 5)];
-				BufferedImage image = ImageIO.read(Client.class.getResource(difficulty));
-				diskAccessTime += (System.currentTimeMillis() - startDiskAccessTime);
-				int[][] result = imageTo2DArray(image);
-				System.out.println("SENDING "+result.length);
-
-				System.out.println("Connecting to " + serverName +
-						" on port " + port);
-				long startNetworkTime = System.currentTimeMillis();
-				Socket client = new Socket(serverName, port);
-				System.out.println("Just connected to " 
-						+ client.getRemoteSocketAddress());
-				OutputStream outToServer = client.getOutputStream();
-				DataOutputStream out = new DataOutputStream(outToServer);
-
-				// SENDING IMAGE TO SERVER
-				String messageToServer = "";
-				out.writeUTF(""+result.length);
-				out.writeUTF(""+result[0].length);
-				for(int i = 0 ; i < result.length ; i++){
-					for(int j = 0 ; j < result[0].length ; j++){
-						if(j < result[0].length-1)
-							messageToServer += result[i][j]+",";
-						else
-							messageToServer += result[i][j]+"";
-					}
-					out.writeUTF(messageToServer);
-					messageToServer = "";
-				}
-
-				// RECEIVING IMAGE FROM SERVER
-				startNetworkTime = System.currentTimeMillis();
-				InputStream inFromServer = client.getInputStream();
-				DataInputStream in =
-						new DataInputStream(inFromServer);
-				networkTime += System.currentTimeMillis() - startNetworkTime;
-				int lengthX = Integer.parseInt(in.readUTF());
-				int lengthY = Integer.parseInt(in.readUTF());
-				int imageArray[][] = new int[lengthX][lengthY];
-				for(int i = 0 ; i<lengthX ; i++){
-					imageArray[i] = stringToIntArray(in.readUTF().split(","));
-				}
-				client.close();
-				networkTime += System.currentTimeMillis() - startNetworkTime;
-				startDiskAccessTime = System.currentTimeMillis();
-				writeImage(imageArray); // WRITING IMAGE
-				diskAccessTime += (System.currentTimeMillis() - startDiskAccessTime);
-				System.out.println("Network time : "+networkTime/1000.0+"s");
-				System.out.println("Disk access time : "+diskAccessTime/1000.0+"s");
-				System.out.println("Total time : "+(System.currentTimeMillis()-startTime)/1000.0+"s");
-				long currentTime = System.currentTimeMillis();
-				while((System.currentTimeMillis()-currentTime)/1000.0 < Utils.expDistribRand()){
-					// Wait an exponentially distributed time
-				}
-			}
-			System.out.println("done");
-		}catch(IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	public void run()
-	{
-		measurement2();
-	}
-
 	public static void main(String [] args)
 	{
 		String serverName = args[0];
 		int port = Integer.parseInt(args[1]);
-		Thread t = new Client(serverName,port);
-		t.start();
+		int numberOfClients = 10;
+		for(int i = 0 ; i<numberOfClients ; i++){
+			Thread t = new Client(serverName,port, Utils.getRandomInteger(0, 5));
+			t.start();
+			long currentTime = System.currentTimeMillis();
+			while((System.currentTimeMillis()-currentTime)/1000.0 < Utils.expDistribRand()){
+				// Wait an exponentially distributed time
+			}
+		}
 	}
 }
