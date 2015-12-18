@@ -122,9 +122,9 @@ public class Client extends Thread {
 	{
 		String serverName = args[0];
 		int port = Integer.parseInt(args[1]);
-		int numberOfClients = 1;
+		int numberOfClients = 10; // VAR USED TO CHANGE THE NUMBER OF REQUESTS
 		for(int i = 0 ; i<numberOfClients ; i++){
-			Thread t = new Client(serverName,port, Utils.getRandomInteger(0, 5));
+			Thread t = new Client(serverName,port, Utils.getRandomInteger(0, 5)); //
 			t.start();
 			long currentTime = System.currentTimeMillis();
 			double time = Utils.expDistribRand();
