@@ -124,7 +124,8 @@ public class Client extends Thread {
 			Thread t = new Client(serverName,port, Utils.getRandomInteger(0, 5));
 			t.start();
 			long currentTime = System.currentTimeMillis();
-			while((System.currentTimeMillis()-currentTime)/1000.0 < Utils.expDistribRand()){
+			double time = Utils.expDistribRand();
+			while((System.currentTimeMillis()-currentTime)/1000.0 < time){
 				// Wait an exponentially distributed time
 			}
 		}
