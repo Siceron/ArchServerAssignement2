@@ -79,7 +79,8 @@
 \section{Introduction}
 
 The goal of this project is to build a client-server system and measure its performance, identify how the different components contribute to its behavior, and do a model-based evaluation.\\
-As requested,  the server should accept computation requests from clients through the network. For this purpose, we choosed a simple convolution (The client sends an image to the server, and the server applies a mask and returns the result image).
+As requested,  the server should accept computation requests from clients through the network. For this purpose, we choosed a simple convolution (The client sends an image to the server, and the server applies a mask and returns the result image). The client sends an array of integer (pixels of the image) and the server responds with a modified array of integer. Then the client writes an image called "reponse.png" in the current directory.\\
+We used a computer with a processor Intel Core i5-3570K CPU 3.40GHz for the server and a
 
 \section{Task 2.1 : A simple server for mathematical computations}
 
